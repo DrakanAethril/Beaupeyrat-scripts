@@ -12,6 +12,9 @@ samba-tool group add "$group" \
         --groupou="OU=Groups" \
         --group-scope=Global \
         --gid-number="$gid"
-    echo "Cree: $group (gid=$gid)"
-
+if [ $? -ne 0 ]; then
+    echo "ERROR: failed to create $group"
+    exit 1
+fi
+echo "Cree: $group (gid=$gid)"
 exit 0
