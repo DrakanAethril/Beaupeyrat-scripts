@@ -10,7 +10,7 @@ require_once __DIR__ . '/tools/functions.php';
 $pdo = getConnection();
 
 while ($line = getUserLine($pdo)) {
-    $script = match($line['change_type']) {
+    $script = match($line['action_type']) {
         'account_create' => CREATE_ACCOUNT_SCRIPT,
         'pwd_change'     => PWD_CHANGE_SCRIPT,
     };

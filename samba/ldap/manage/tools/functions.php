@@ -23,7 +23,7 @@ function getUserLine(PDO $pdo) {
     $update = $pdo->prepare('UPDATE ldap_manage_user SET state = 1, pid = :pid, started_at = NOW() WHERE state = 0 AND pid IS NULL LIMIT 1');
     $update->execute([':pid' => $pid]);
 
-    $select = $pdo->prepare('SELECT id, firstname, lastname, user_type, user_groups FROM ldap_manage_user WHERE state = 1 AND pid = :pid LIMIT 1');
+    $select = $pdo->prepare('SELECT id, firstname, lastname, user_type, user_groups, action_type FROM ldap_manage_user WHERE state = 1 AND pid = :pid LIMIT 1');
     $select->execute([':pid' => $pid]);
     $line = $select->fetch(PDO::FETCH_ASSOC);
 
