@@ -10,7 +10,7 @@ require_once __DIR__ . '/tools/functions.php';
 $pdo = getConnection();
 
 while ($line = getGroupLine($pdo)) {
-    $args = [$line['name'], $line['id']];
+    $args = [$line['name'], $line['id'], NIS_DOMAIN];
     $cmd = CREATE_GROUP_SCRIPT . ' ' . implode(' ', array_map('escapeshellarg', $args));
     exec($cmd, $output, $exitCode);
 

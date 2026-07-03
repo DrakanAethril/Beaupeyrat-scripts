@@ -9,6 +9,8 @@ define('CREATE_ACCOUNT_SCRIPT', '/path/to/create_account.sh');
 define('PWD_CHANGE_SCRIPT',     '/path/to/pwd_change.sh');
 define('CREATE_GROUP_SCRIPT',   '/path/to/create_group.sh');
 
+define('NIS_DOMAIN', 'DOMAIN');
+
 // AES-256 key used by MySQL AES_ENCRYPT/AES_DECRYPT for the password column.
 // Generate with: openssl rand -hex 32
 // Keep this secret — losing it makes stored passwords unrecoverable.
