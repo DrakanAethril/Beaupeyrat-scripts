@@ -32,6 +32,24 @@ function getUserLine(PDO $pdo) {
     return $line;
 }
 
+// Claim and return one pending row from ldap_manage_group, or false when the queue is empty.
+function getGroupLine(PDO $pdo) {
+    $pid = getPid();
+
+    $pdo->beginTransaction();
+
+    $update = $pdo->prepare('UPDATE ldap_manage_group SET state = 1, pid = :pid, started_at = NOW() WHERE state = 0 AND pid IS NULL LIMIT 1');
+    $update->execute([':pid' => $pid]);
+
+    $select = $pdo->prepare('SELECT id, name FROM ldap_manage_group WHERE state = 1 AND pid = :pid LIMIT 1');
+    $select->execute([':pid' => $pid]);
+    $line = $select->fetch(PDO::FETCH_ASSOC);
+
+    $pdo->commit();
+
+    return $line;
+}
+
 // Generate a unique login: first letter of firstname + lastname (lowercased, ASCII-safe).
 // If the candidate already exists in ldap_manage_user, append 01, 02, … until unique.
 function generateUniqueLogin(PDO $pdo, string $firstname, string $lastname): string {
