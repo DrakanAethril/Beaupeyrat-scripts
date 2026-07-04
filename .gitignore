@@ -1,1 +1,3 @@
 samba/ldap/manage/config/config.php
+samba/ldap/manage/config/fixtures.sql
+
