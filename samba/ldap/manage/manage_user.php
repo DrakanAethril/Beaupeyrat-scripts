@@ -17,7 +17,12 @@ while ($line = getUserLine($pdo)) {
     $line['login']    = generateUniqueLogin($pdo, $line['firstname'], $line['lastname']);
     $line['password'] = generateUserPassword();
 
-    $args = [$line['firstname'], $line['lastname'], $line['user_type'], $line['user_groups'], $line['login'], $line['id'], $line['password']];
+    $secondaryGroups = implode('|', array_filter(
+        explode('|', $line['user_groups']),
+        fn($g) => $g !== 'admin'
+    ));
+
+    $args = [$line['firstname'], $line['lastname'], $line['user_type'], $secondaryGroups, $line['login'], $line['id'], $line['password']];
     $cmd = $script . ' ' . implode(' ', array_map('escapeshellarg', $args));
     exec($cmd, $output, $exitCode);
 
