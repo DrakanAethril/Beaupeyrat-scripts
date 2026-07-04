@@ -36,7 +36,7 @@ if ! [[ "$uid" =~ ^[0-9]+$ ]]; then
 fi
 
 samba-tool user create "$login" "$password" \
-    --given-name="$firstname" --surname="$lastname" \
+    --given-name="$firstname" --surname="$lastname" --use-username-as-cn \
     --userou="$BASE_OU" \
     --uid-number="$uid" --gid-number="$gid" \
     --unix-home="/home/$login" \
