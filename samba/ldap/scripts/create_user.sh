@@ -21,6 +21,7 @@ declare -A GROUP_GID=(
     [staff]=99102
     [teacher]=99101
     [student]=99100
+    [external]=99106
 )
 
 gid="${GROUP_GID[$primary_group]}"
