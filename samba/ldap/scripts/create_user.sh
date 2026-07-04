@@ -10,18 +10,17 @@ fi
 
 firstname="$1"; lastname="$2"; primary_group="$3"
 secondary_groups="$4"; login="$5"; uid="$6"; password="$7"
-
 DOMAIN="beaupeyrat.lan"
 FILESERVER="samba-homes.beaupeyrat.lan"
 BASE_OU="OU=People"
 
 declare -A GROUP_GID=(
-    [direction]=99997
-    [techniciens-support]=99998
-    [admins]=99999
-    [personnels]=99994
-    [profs]=99995
-    [etudiants]=99996
+    [staff-lead]=99105
+ #   [support-tech]=99104
+ #   [admin]=99103
+    [staff]=99102
+    [teacher]=99101
+    [student]=99100
 )
 
 gid="${GROUP_GID[$primary_group]}"

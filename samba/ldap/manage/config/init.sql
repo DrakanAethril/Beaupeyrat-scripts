@@ -29,3 +29,6 @@ CREATE TABLE IF NOT EXISTS `ldap_manage_group` (
     `log`        TEXT             DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=99100 DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `ldap_manage_group` ADD UNIQUE(`name`); 
+ALTER TABLE `ldap_manage_group` ADD `description` VARCHAR(255) NOT NULL AFTER `name`;

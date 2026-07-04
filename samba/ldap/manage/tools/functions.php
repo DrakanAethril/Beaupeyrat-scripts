@@ -41,7 +41,7 @@ function getGroupLine(PDO $pdo) {
     $update = $pdo->prepare('UPDATE ldap_manage_group SET state = 1, pid = :pid, started_at = NOW() WHERE state = 0 AND pid IS NULL LIMIT 1');
     $update->execute([':pid' => $pid]);
 
-    $select = $pdo->prepare('SELECT id, name FROM ldap_manage_group WHERE state = 1 AND pid = :pid LIMIT 1');
+    $select = $pdo->prepare('SELECT id, name, description FROM ldap_manage_group WHERE state = 1 AND pid = :pid LIMIT 1');
     $select->execute([':pid' => $pid]);
     $line = $select->fetch(PDO::FETCH_ASSOC);
 
