@@ -30,5 +30,25 @@ CREATE TABLE IF NOT EXISTS `ldap_manage_group` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=99100 DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE `ldap_manage_group` ADD UNIQUE(`name`); 
+ALTER TABLE `ldap_manage_group` ADD UNIQUE(`name`);
 ALTER TABLE `ldap_manage_group` ADD `description` VARCHAR(255) NOT NULL AFTER `name`;
+
+-- No FK declared here to `user` (id): that table belongs to the moncampus app's own schema,
+-- not this project - `user_id` is only meaningful in the shared production database, where
+-- moncampus's own migration adds the real constraint. `login` is a denormalized snapshot of
+-- that user's username, kept alongside user_id so this consumer never needs to JOIN back into
+-- moncampus's tables to do its job.
+CREATE TABLE IF NOT EXISTS `ldap_manage_password` (
+    `id`         INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+    `user_id`    INT              NOT NULL,
+    `login`      VARCHAR(255)     NOT NULL,
+    `added_at`   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `added_by`   VARCHAR(255)     NOT NULL DEFAULT 'direct',
+    `password`   VARBINARY(255)   DEFAULT NULL,
+    `state`      TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    `pid`        INT UNSIGNED     DEFAULT NULL,
+    `started_at` DATETIME         DEFAULT NULL,
+    `ended_at`   DATETIME         DEFAULT NULL,
+    `log`        TEXT             DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

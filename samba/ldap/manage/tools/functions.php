@@ -50,6 +50,26 @@ function getGroupLine(PDO $pdo) {
     return $line;
 }
 
+// Claim and return one pending row from ldap_manage_password, or false when the queue is empty.
+// Unlike getUserLine(), the login is already known (the moncampus app resolves it against its
+// own user table before inserting the row) - nothing here needs to be generated.
+function getPasswordLine(PDO $pdo) {
+    $pid = getPid();
+
+    $pdo->beginTransaction();
+
+    $update = $pdo->prepare('UPDATE ldap_manage_password SET state = 1, pid = :pid, started_at = NOW() WHERE state = 0 AND pid IS NULL LIMIT 1');
+    $update->execute([':pid' => $pid]);
+
+    $select = $pdo->prepare('SELECT id, login FROM ldap_manage_password WHERE state = 1 AND pid = :pid LIMIT 1');
+    $select->execute([':pid' => $pid]);
+    $line = $select->fetch(PDO::FETCH_ASSOC);
+
+    $pdo->commit();
+
+    return $line;
+}
+
 // Generate a unique login: first letter of firstname + lastname (lowercased, ASCII-safe).
 // If the candidate already exists in ldap_manage_user, append 01, 02, … until unique.
 function generateUniqueLogin(PDO $pdo, string $firstname, string $lastname): string {
