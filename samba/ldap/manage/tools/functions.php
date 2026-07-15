@@ -53,16 +53,23 @@ function getGroupLine(PDO $pdo) {
 // Claim and return one pending row from ldap_manage_password, or false when the queue is empty.
 // Unlike getUserLine(), the login is already known (the moncampus app resolves it against its
 // own user table before inserting the row) - nothing here needs to be generated.
+//
+// `password` may already be set at insert time (AES_ENCRYPT'd by whoever inserted the row) if a
+// specific password was requested rather than an auto-generated one - decrypted back here so
+// manage_password.php can tell the two cases apart (see its $line['password'] ?? ... fallback).
+// CAST(... AS CHAR) matches App\Repository\LdapManagePasswordRepository::decryptPassword()'s
+// own AES_DECRYPT call on the moncampus side - without it PDO gets the raw BLOB back instead of
+// a usable string.
 function getPasswordLine(PDO $pdo) {
     $pid = getPid();
 
     $pdo->beginTransaction();
 
-    $update = $pdo->prepare('UPDATE ldap_manage_password SET state = 1, pid = :pid, started_at = NOW() WHERE state = 0 AND pid IS NULL LIMIT 1');
+    $update = $pdo->prepare('UPDATE ldap_manage_password SET state = 1, pid = :pid, started_at = NOW() WHERE state = 0 AND pid IS NULL ORDER BY id ASC LIMIT 1');
     $update->execute([':pid' => $pid]);
 
-    $select = $pdo->prepare('SELECT id, login FROM ldap_manage_password WHERE state = 1 AND pid = :pid LIMIT 1');
-    $select->execute([':pid' => $pid]);
+    $select = $pdo->prepare('SELECT id, login, CAST(AES_DECRYPT(password, :aes_key) AS CHAR) AS password FROM ldap_manage_password WHERE state = 1 AND pid = :pid LIMIT 1');
+    $select->execute([':pid' => $pid, ':aes_key' => AES_KEY]);
     $line = $select->fetch(PDO::FETCH_ASSOC);
 
     $pdo->commit();

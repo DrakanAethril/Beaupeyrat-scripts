@@ -10,7 +10,10 @@ require_once __DIR__ . '/tools/functions.php';
 $pdo = getConnection();
 
 while ($line = getPasswordLine($pdo)) {
-    $password = generateUserPassword();
+    // A specific password can be requested up front (encrypted into the same `password` column
+    // at insert time) - getPasswordLine() decrypts it back for us. Keep it if present, otherwise
+    // fall back to generating a random one, same as account creation does for new accounts.
+    $password = $line['password'] ?? generateUserPassword();
 
     $args = [$line['login'], $password];
     $cmd = PWD_CHANGE_SCRIPT . ' ' . implode(' ', array_map('escapeshellarg', $args));
