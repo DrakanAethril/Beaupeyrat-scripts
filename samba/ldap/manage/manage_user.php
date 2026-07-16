@@ -14,7 +14,8 @@ while ($line = getUserLine($pdo)) {
         'account_create' => CREATE_ACCOUNT_SCRIPT,
         'pwd_change'     => PWD_CHANGE_SCRIPT,
     };
-    $line['login']    = generateUniqueLogin($pdo, $line['firstname'], $line['lastname']);
+    // login comes straight off the row now (see getUserLine()'s docblock) - the moncampus app
+    // reserves it and creates the matching User row before this queue is ever processed.
     $line['password'] = generateUserPassword();
 
     $secondaryGroups = implode('|', array_filter(
@@ -27,10 +28,10 @@ while ($line = getUserLine($pdo)) {
     exec($cmd, $output, $exitCode);
 
     if ($exitCode === 0) {
-        $update = $pdo->prepare('UPDATE ldap_manage_user SET state = 2, ended_at = NOW(), login = :login, password = AES_ENCRYPT(:password, :aes_key) WHERE id = :id');
-        $update->execute([':login' => $line['login'], ':password' => $line['password'], ':aes_key' => AES_KEY, ':id' => $line['id']]);
+        $update = $pdo->prepare('UPDATE ldap_manage_user SET state = 2, ended_at = NOW(), password = AES_ENCRYPT(:password, :aes_key) WHERE id = :id');
+        $update->execute([':password' => $line['password'], ':aes_key' => AES_KEY, ':id' => $line['id']]);
     } else {
-        $update = $pdo->prepare('UPDATE ldap_manage_user SET state = 3, ended_at = NOW(), login = :login, password = AES_ENCRYPT(:password, :aes_key), log = :log WHERE id = :id');
-        $update->execute([':login' => $line['login'], ':password' => $line['password'], ':aes_key' => AES_KEY, ':log' => implode("\n", $output), ':id' => $line['id']]);
+        $update = $pdo->prepare('UPDATE ldap_manage_user SET state = 3, ended_at = NOW(), password = AES_ENCRYPT(:password, :aes_key), log = :log WHERE id = :id');
+        $update->execute([':password' => $line['password'], ':aes_key' => AES_KEY, ':log' => implode("\n", $output), ':id' => $line['id']]);
     }
 }
